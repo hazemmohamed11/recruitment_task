@@ -74,12 +74,9 @@
 
                 try {
                   
-                    $table_name = 'applicants'; // Assuming 'applicants' is the table name
-
-                    // Prepare the SQL statement
+                    $table_name = 'applicants'; 
                     $statement = $connection->prepare("INSERT INTO $table_name (email,JobID,ApplicationDate) VALUES (:email, :job_id, :application_date)");
 
-                    // Bind parameters
                     $statement->bindParam(':email', $email);
                     $statement->bindParam(':job_id', $job_id);
                     $statement->bindParam(':application_date', $application_date);
@@ -100,8 +97,7 @@
                 }
             }
             class LatestVacanciesWidget extends WP_Widget {
-                private $connection; // Store the database connection
-
+                private $connection; 
                 public function __construct() {
                     parent::__construct(
                         'latest-vacancies-widget',
@@ -109,11 +105,9 @@
                         array('description' => 'Display the latest vacancies.')
                     );
 
-                    // Establish the database connection in the constructor
                     $this->connection = $this->db_connect();
                 }
 
-                // Establish the database connection using PDO
                 private function db_connect() {
                     $host = 'localhost';
                     $username = 'root';
