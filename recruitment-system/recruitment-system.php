@@ -11,7 +11,7 @@
 
             function add_recruitment_settings_page() {
                 add_menu_page('Recruitment System Settings', 'Recruitment Settings', 'manage_options', 'recruitment_settings_page', 'render_configuration_page');
-                register_setting('recruitment_settings_group', 'job_titles_count'); // Use the same group name here
+                register_setting('recruitment_settings_group', 'job_titles_count'); 
             }
             add_action('admin_menu', 'add_recruitment_settings_page');
 
@@ -99,64 +99,6 @@
                     return rest_ensure_response($response, 5001);
                 }
             }
-
-            function db_connect() {
-                // Replace this with your database connection logic
-                $servername = "localhost";
-                $username = "root";
-                $password = "";
-                $dbname = "recruitment_task";
-
-                // Create connection
-                $conn = new mysqli($servername, $username, $password, $dbname);
-
-                // Check connection 
-                if ($conn->connect_error) {
-                    die("Database connection failed: " . $conn->connect_error);
-                }
-
-                return $conn;
-            }
-
-            function check_and_update_vacancies() {
-                // Use your custom database connection
-                $custom_db = db_connect(); // Call your custom database connection function
-
-                $current_date = date('Y-m-d H:i:s');
-
-                // Query the database for vacancies with an end date in the past
-                // $sql = "SELECT ID FROM {$custom_db->real_escape_string($custom_db->prefix)}jobvacancy WHERE EndDate < ? AND Status = 'published'";
-
-                global $wpdb;
-            $table_name = $wpdb->prefix . 'jobvacancy';
-            $sql = $wpdb->prepare("SELECT ID FROM $table_name WHERE EndDate < %s AND Status = 'published'", $current_date);
-
-                $stmt = $custom_db->prepare($sql);
-
-                if ($stmt) {
-                    $stmt->bind_param("s", $current_date);
-                    $stmt->execute();
-                    $stmt->store_result();
-                    $stmt->bind_result($vacancyID);
-
-                    while ($stmt->fetch()) {
-                        // Update the status to 'unpublished'
-                        $updateSql = "UPDATE {$custom_db->real_escape_string($custom_db->prefix)}jobvacancy SET Status = 'unpublished' WHERE ID = ?";
-                        $updateStmt = $custom_db->prepare($updateSql);
-
-                        if ($updateStmt) {
-                            $updateStmt->bind_param("i", $vacancyID);
-                            if ($updateStmt->execute()) {
-                                echo "Vacancy ID: $vacancyID updated successfully.";
-                            } else {
-                                echo "Error updating vacancy ID: $vacancyID. Error: " . $custom_db->error;
-                            }
-                            $updateStmt->close();
-                        }
-                    }
-                    $stmt->close();
-                }
-            }
             class LatestVacanciesWidget extends WP_Widget {
                 private $connection; // Store the database connection
 
@@ -217,11 +159,10 @@
             // Define the activation hook function
             function my_plugin_activation() {
                 // Create the custom tables when the plugin is activated
-                global $wpdb;
-                $charset_collate = $wpdb->get_charset_collate();
+                global $connection;
                 
                 // Create the applicants table
-                $applicants_table_name = $wpdb->prefix . 'applicants';
+                $applicants_table_name = 'applicants';
                 $sql_applicants = "CREATE TABLE $applicants_table_name (
                     ID int(11) NOT NULL AUTO_INCREMENT,
                     Email varchar(255) NOT NULL,
@@ -229,13 +170,13 @@
                     ApplicationDate date DEFAULT NULL,
                     PRIMARY KEY (ID),
                     CONSTRAINT applicants_ibfk_1 FOREIGN KEY (JobID) REFERENCES jobvacancy (ID) ON DELETE CASCADE
-                ) $charset_collate;";
-                dbDelta($sql_applicants);
+                ) ";
+    $connection->exec($sql_applicants);
 
             
 
                 // Create the jobvacancy table
-                $jobvacancy_table_name = $wpdb->prefix . 'jobvacancy';
+                $jobvacancy_table_name = 'jobvacancy';
                 $sql_jobvacancy = "CREATE TABLE $jobvacancy_table_name (
                     ID int(11) NOT NULL AUTO_INCREMENT,
                     JobTitle varchar(255) NOT NULL,
@@ -245,10 +186,9 @@
                     EndDate datetime DEFAULT NULL,
                     Status varchar(20) DEFAULT 'published',
                     PRIMARY KEY (ID),
-                ) $charset_collate;";
-                dbDelta($sql_jobvacancy);
-            }
+                ) ";
+    $connection->exec($sql_jobvacancy);
+}
 
             // Register the activation hook
             register_activation_hook(__FILE__, 'my_plugin_activation');
-            check_and_update_vacancies();
