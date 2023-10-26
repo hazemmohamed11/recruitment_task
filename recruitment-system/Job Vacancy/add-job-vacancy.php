@@ -1,6 +1,6 @@
 <?php
 // Include the database connection file
-require_once "db_connect.php";
+require_once "../db_connect.php";
 require_once "../../../../wp-load.php";
 if (function_exists('wp_mail')) {
     echo "Mail will be sent after filling these data.";

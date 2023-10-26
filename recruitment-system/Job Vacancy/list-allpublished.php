@@ -1,6 +1,6 @@
 <?php
 // Include the database connection file
-require_once "db_connect.php";
+require_once "../db_connect.php";
 require_once "../../../../wp-load.php";
 
 $job_titles_count = get_option('job_titles_count'); // Retrieve the job titles count from the options
@@ -79,3 +79,6 @@ $counter = 0;
 <?php
 $connection = null;
 ?>
+
+
+

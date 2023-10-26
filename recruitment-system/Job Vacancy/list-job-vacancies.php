@@ -1,11 +1,10 @@
 <?php
 // Include the database connection file
-require_once "db_connect.php";
+require_once "../db_connect.php";
 require_once "../../../../wp-load.php";
 
-$job_titles_count = get_option('job_titles_count'); // Retrieve the job titles count from the options
 
-$sql = "SELECT * FROM jobvacancy LIMIT $job_titles_count"; // Limit the query to the specified count
+$sql = "SELECT * FROM jobvacancy "; // Limit the query to the specified count
 $result = $connection->query($sql);
 
 $counter = 0;
@@ -56,9 +55,7 @@ $counter = 0;
     <tbody>
       <?php
       while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        if ($counter >= $job_titles_count) {
-          break;
-        }
+       
 
         echo "<tr>";
         echo "<td>" . $row["ID"] . "</td>";
@@ -84,5 +81,66 @@ $counter = 0;
 </html>
 
 <?php
+
+
+function db_connect() {
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "recruitment_task";
+  
+    // Create a MySQLi connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
+  
+    // Check the connection
+    if ($conn->connect_error) {
+        die("Database connection failed: " . $conn->connect_error);
+    }
+  
+    return $conn;
+  }
+  
+  function check_and_update_vacancies() {
+    // Use your custom MySQLi database connection
+    $custom_db = db_connect(); // Call your custom database connection function
+  
+    $current_date = date('Y-m-d H:i:s');
+  
+    // Define the table name without the WordPress prefix
+    $table_name = 'jobvacancy';
+  
+    // Query the database for vacancies with an end date in the past
+    $sql = "SELECT ID FROM $table_name WHERE EndDate < ? AND Status = 'published'";
+  
+    $stmt = $custom_db->prepare($sql);
+  
+    if ($stmt) {
+        $stmt->bind_param("s", $current_date);
+        $stmt->execute();
+        $stmt->store_result();
+        $stmt->bind_result($vacancyID);
+  
+        while ($stmt->fetch()) {
+            // Update the status to 'unpublished'
+            $updateSql = "UPDATE $table_name SET Status = 'unpublished' WHERE ID = ?";
+            $updateStmt = $custom_db->prepare($updateSql);
+  
+            if ($updateStmt) {
+                $updateStmt->bind_param("i", $vacancyID);
+                if ($updateStmt->execute()) {
+                    echo "Vacancy ID: $vacancyID updated successfully.";
+                } else {
+                    echo "Error updating vacancy ID: $vacancyID. Error: " . $custom_db->error;
+                }
+                $updateStmt->close();
+            }
+        }
+        $stmt->close();
+    } else {
+        echo "Error in SQL query: " . $custom_db->error;
+    }
+  }
+  check_and_update_vacancies();
+  
 $connection = null;
 ?>

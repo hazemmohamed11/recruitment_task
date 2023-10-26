@@ -1,6 +1,6 @@
 <?php
 // Include the database connection file
-require "db_connect.php";
+require_once "../db_connect.php";
 // Check if the "id" parameter is present in the URL
 if (isset($_GET["id"])) {
     $id = $_GET["id"];

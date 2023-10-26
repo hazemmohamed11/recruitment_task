@@ -34,7 +34,7 @@
 <body>
     <div class="job-details">
         <?php
-        require_once "db_connect.php";
+require_once "../db_connect.php";
 
         // Retrieve the job ID from the URL query parameter
         $job_id = isset($_GET["job_id"]) ? $_GET["job_id"] : null;
