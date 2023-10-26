@@ -1,0 +1,44 @@
+ /* CSS styles for the job vacancies table */
+ .job-vacancies-table {
+    width: 100%;
+  }
+
+  .job-vacancies-table th,
+  .job-vacancies-table td {
+    padding: 10px;
+  }
+
+  .job-title {
+    width: 30%;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+  }
+  .job-details {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  h2 {
+    color: #0073e6;
+  }
+  p {
+    line-height: 1.6;
+  }
+
+    .add-new-job-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0073e6;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+
